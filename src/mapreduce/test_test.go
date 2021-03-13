@@ -24,7 +24,7 @@ const (
 
 // Split in words
 func MapFunc(file string, value string) (res []KeyValue) {
-	debug("Map %v\n", value)
+	//debug("Map %v\n", value)
 	words := strings.Fields(value)
 	for _, w := range words {
 		kv := KeyValue{w, ""}
@@ -52,6 +52,7 @@ func check(t *testing.T, files []string) {
 
 	var lines []string
 	for _, f := range files {
+		//fmt.Println("check file is:", f)
 		input, err := os.Open(f)
 		if err != nil {
 			log.Fatal("check: ", err)
@@ -59,7 +60,9 @@ func check(t *testing.T, files []string) {
 		defer input.Close()
 		inputScanner := bufio.NewScanner(input)
 		for inputScanner.Scan() {
-			lines = append(lines, inputScanner.Text())
+			temp := inputScanner.Text()
+			//fmt.Println("test file:", temp)
+			lines = append(lines, temp)
 		}
 	}
 
@@ -71,17 +74,27 @@ func check(t *testing.T, files []string) {
 		var v1 int
 		var v2 int
 		text := outputScanner.Text()
+		//n1, err1 := fmt.Sscanf("0", "%d", &v1)
+		// if lines[i] != "0" {
+		// 	fmt.Println("1wocoa")
+		// 	panic("fuck")
+		// }
 		n, err := fmt.Sscanf(lines[i], "%d", &v1)
+		// if lines[i] != "0" || n == 1 {
+		// 	fmt.Println("2wocoa", n, err)
+		// 	panic("fuck")
+		// }
 		if n == 1 && err == nil {
 			n, err = fmt.Sscanf(text, "%d", &v2)
 		}
 		if err != nil || v1 != v2 {
+			fmt.Println(err, "but line is:", text, n, lines[i], v1 != v2)
 			t.Fatalf("line %d: %d != %d err %v\n", i, v1, v2, err)
 		}
 		i++
 	}
 	if i != nNumber {
-		t.Fatalf("Expected %d lines in output\n", nNumber)
+		t.Fatalf("Expected %d lines in output,but actula have:%d\n", nNumber, i)
 	}
 }
 
@@ -131,7 +144,9 @@ func port(suffix string) string {
 
 func setup() *Master {
 	files := makeInputs(nMap)
+	//fmt.Println(files)
 	master := port("master")
+	fmt.Println(master)
 	mr := Distributed("test", files, nReduce, master)
 	return mr
 }
@@ -139,6 +154,7 @@ func setup() *Master {
 func cleanup(mr *Master) {
 	mr.CleanupFiles()
 	for _, f := range mr.files {
+		//fmt.Println("clean up function:", f)
 		removeFile(f)
 	}
 }

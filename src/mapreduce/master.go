@@ -33,6 +33,7 @@ type Master struct {
 
 // Register is an RPC method that is called by workers after they have started
 // up to report that they are ready to receive tasks.
+// Register是一个RPC方法，在worker启动后，worker调用它来报告他们已经准备好接收任务。
 func (mr *Master) Register(args *RegisterArgs, _ *struct{}) error {
 	mr.Lock()
 	defer mr.Unlock()
@@ -57,6 +58,7 @@ func newMaster(master string) (mr *Master) {
 
 // Sequential runs map and reduce tasks sequentially, waiting for each task to
 // complete before running the next.
+// 按顺序顺序运行map和reduce任务，等待每个任务完成后再运行下一个任务。
 func Sequential(jobName string, files []string, nreduce int,
 	mapF func(string, string) []KeyValue,
 	reduceF func(string, []string) string,
@@ -89,7 +91,10 @@ func (mr *Master) forwardRegistrations(ch chan string) {
 		if len(mr.workers) > i {
 			// there's a worker that we haven't told schedule() about.
 			w := mr.workers[i]
-			go func() { ch <- w }() // send without holding the lock.
+			go func() {
+				ch <- w
+				//fmt.Println("new work regiter:", w, i, mr.workers)
+			}() // send without holding the lock.
 			i = i + 1
 		} else {
 			// wait for Register() to add an entry to workers[]

@@ -16,7 +16,7 @@ func (mr *Master) merge() {
 	kvs := make(map[string]string)
 	for i := 0; i < mr.nReduce; i++ {
 		p := mergeName(mr.jobName, i)
-		fmt.Printf("Merge: read %s\n", p)
+		//fmt.Printf("Merge: read %s\n", p)
 		file, err := os.Open(p)
 		if err != nil {
 			log.Fatal("Merge: ", err)
@@ -54,6 +54,7 @@ func (mr *Master) merge() {
 func removeFile(n string) {
 	err := os.Remove(n)
 	if err != nil {
+		log.SetFlags(log.Lshortfile | log.LstdFlags)
 		log.Fatal("CleanupFiles ", err)
 	}
 }
